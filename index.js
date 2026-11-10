@@ -1,8 +1,8 @@
 const { Telegraf } = require('telegraf');
-const axios = require('axios'); // Szükséges a webes kérésekhez (API hívásokhoz)
+const axios = require('axios');
 
 const token = process.env.BOT_TOKEN;
-const fomoApiKey = process.env.FOMO_API_KEY; // Itt olvassa ki a Railwayről a kulcsodat
+const fomoApiKey = process.env.FOMO_API_KEY;
 
 if (!token) {
     console.error('Hiba: A BOT_TOKEN környezeti változó nincs beállítva!');
@@ -20,36 +20,30 @@ bot.command('status', (ctx) => {
     ctx.reply(`✅ A bot fut!\nFOMO API kapcsolat: ${hasKey}`);
 });
 
-// Itt fogjuk lekérdezni a bálnák adatait a FOMO API-n keresztül
-async function checkWhalePurchases(ctx) {
+async function checkWhalePurchases() {
     try {
         if (!fomoApiKey) {
             console.log('Nincs FOMO_API_KEY beállítva!');
             return;
         }
 
-        // Példa API hívás a FOMO / adatszolgáltató felé
-        // (A 'https://api.fomo.com/v1/whales' helyére a te szolgáltatód pontos API címét kell írni)
+        // Ide jön majd a te FOMO API végpontod, ha pontosítod a címet
         const response = await axios.get('https://api.fomo.com/v1/whales/transactions', {
             headers: {
                 'Authorization': `Bearer ${fomoApiKey}`
             }
         });
 
-        const transactions = response.data;
-
-        // Ide jön majd a logika, ami szűri, ha 3-4 bálna ugyanazt veszi
-        // Ha talál ilyet, elküldi az üzenetet a Telegramra:
-        // ctx.telegram.sendMessage(CHAT_ID, '🚨 Bálna riasztás...');
+        console.log('API adatok lekérdezve:', response.data);
 
     } catch (error) {
         console.error('Hiba a FOMO API lekérdezése közben:', error.message);
     }
 }
 
-// Időzítő: Például minden 60 másodpercben lekérdezi az API-t
+// Ellenőrzés 60 másodpercenként
 setInterval(() => {
-    // checkWhalePurchases();
+    checkWhalePurchases();
 }, 60000);
 
 bot.launch();
